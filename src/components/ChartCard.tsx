@@ -12,12 +12,17 @@ const ChartCard = () => {
 
   useEffect(() => {
     const requestData = async () => {
-      const responce = await fetch(
-        'https://65e0de8ad3db23f7624a35cb.mockapi.io/api/v1/data'
-      );
-      const data = await responce.json();
-      setMockData(data);
+      try {
+        const response = await fetch(
+          'https://65e0de8ad3db23f7624a35cb.mockapi.io/api/v1/data'
+        );
+        const data = await response.json();
+        setMockData(data);
+      } catch (error) {
+        console.log(error);
+      }
     };
+
     requestData();
   }, []);
 
@@ -28,8 +33,8 @@ const ChartCard = () => {
     data &&
     (data.reduce((acc, item) => acc + item.value, 0) / data.length).toFixed(1);
 
-  // у меня, к сожалению, не получилось сделать как на видео одинаковые интервалы для всех валют с теми же числами
-  // либо интервалы разные, либо числа
+  // к сожалению, не хватило времени разобраться как на видео одинаковые интервалы по оси Y для всех валют с числами из данных
+  // у меня либо интервалы разные, либо числа не те
   // так же в макете и на видео немного разные график и данные, поэтому сделал вывод что можно сделать со своей небольшой погрешностью
 
   const minYValue = data && Math.min(...data.map((item) => item.value));
@@ -40,12 +45,12 @@ const ChartCard = () => {
   const option = {
     title: {
       text: `${value.value.toUpperCase()}, ${value.name}/₽`,
-      top: '8px',
-      left: '13px',
+      top: 8,
+      left: 13,
       textStyle: {
         fontFamily: 'Inter',
         fontWeight: 700,
-        fontSize: '20px',
+        fontSize: 20,
         color: 'rgba(0, 32, 51, 1)',
       },
     },
@@ -62,7 +67,9 @@ const ChartCard = () => {
       extraCssText: 'width: 195px; height: 59px;',
     },
     xAxis: {
+      type: 'category',
       data: data && data.map((item) => item.month),
+      boundaryGap: false,
       axisLine: {
         show: false,
       },
@@ -73,22 +80,23 @@ const ChartCard = () => {
         alignMinLabel: 'center',
         color: 'rgba(0, 32, 51, 0.6)',
         fontFamily: 'Open Sans',
-        fontSize: '10px',
+        fontSize: 10,
         fontWeight: 400,
         margin: 30,
       },
     },
     yAxis: {
+      type: 'value',
+      offset: 16,
       min: minYValue,
       max: maxYValue,
       axisTick: {
-        show: false,
+        show: true,
       },
       axisLabel: {
         color: 'rgba(0, 32, 51, 0.6)',
         fontFamily: 'Inter',
-        fontSize: '10px',
-        margin: 20,
+        fontSize: 10,
       },
       splitLine: {
         lineStyle: {
@@ -97,7 +105,6 @@ const ChartCard = () => {
           cap: 'round',
         },
       },
-      // splitNumber: 2,
       interval: interval,
     },
     series: [
